@@ -37,16 +37,6 @@ class Plugin extends BasePlugin
      */
     public function routes(RouteBuilder $routes): void
     {
-        $routes->plugin(
-            'Chialab/Rna',
-            ['path' => '/chialab/rna'],
-            function (RouteBuilder $builder) {
-                // Add custom routes here
-
-                $builder->fallbacks();
-            }
-        );
-        parent::routes($routes);
     }
 
     /**
