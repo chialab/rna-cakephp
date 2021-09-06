@@ -32,20 +32,20 @@ class RnaHelper extends Helper
      *
      * @var array
      */
-    protected $cache = [];
+    protected array $cache = [];
 
     /**
      * Dev servers data.
      *
      * @var array
      */
-    protected $devServers = [];
+    protected array $devServers = [];
 
     /**
      * Load entrypoints for a frontend plugin.
      *
      * @param string|null $plugin The frontend plugin name.
-     * @return array A list of entrypoints.
+     * @return array|null A list of entrypoints.
      */
     protected function loadEntrypoints(?string $plugin = null): ?array
     {
@@ -74,7 +74,7 @@ class RnaHelper extends Helper
      * Get dev server data.
      *
      * @param string $pluginName The plugin name.
-     * @return array A list of resources with their format.
+     * @return string Script to inject dev server functionality.
      */
     public function loadDevServer(string $pluginName): string
     {
@@ -83,7 +83,7 @@ class RnaHelper extends Helper
             return '';
         }
 
-        $map = $this->loadEntrypoints($plugin) ?? [];
+        $map = $this->loadEntrypoints($plugin);
         if ($map === null) {
             return '';
         }
