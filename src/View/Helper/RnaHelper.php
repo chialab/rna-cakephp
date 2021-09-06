@@ -108,14 +108,14 @@ class RnaHelper extends Helper
      *
      * @param string $asset The assets name.
      * @param string $type The asset type.
-     * @return array A list of resources with their format.
+     * @return array Tuple: format and list of entries.
      */
     public function getAssets(string $asset, string $type): array
     {
         [$plugin, $resource] = pluginSplit($asset);
         $map = $this->loadEntrypoints($plugin);
         if ($map === null) {
-            return [];
+            return [null, []];
         }
 
         $format = Hash::get($map, sprintf('entrypoints.%s.format', $resource), 'umd');
@@ -134,7 +134,7 @@ class RnaHelper extends Helper
     public function css(string $asset, array $options = []): string
     {
         $devServer = $this->loadDevServer($asset);
-        $assets = $this->getAssets($asset, 'css');
+        [, $assets] = $this->getAssets($asset, 'css');
 
         if (empty($assets)) {
             return $devServer;
@@ -158,12 +158,12 @@ class RnaHelper extends Helper
     public function script(string $asset, array $options = []): string
     {
         $devServer = $this->loadDevServer($asset);
-        $assets = $this->getAssets($asset, 'js');
+        [$format, $assets] = $this->getAssets($asset, 'js');
         if (empty($assets)) {
             return $devServer;
         }
 
-        if ($assets[0] === 'esm') {
+        if ($format === 'esm') {
             $options['type'] = 'module';
         }
 
