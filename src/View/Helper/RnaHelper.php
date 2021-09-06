@@ -97,9 +97,7 @@ class RnaHelper extends Helper
 
         return join('', array_filter(
             array_map(
-                function (string $path): ?string {
-                    return $this->Html->script($path, ['type' => 'module']);
-                },
+                fn (string $path): ?string => $this->Html->script($path, ['type' => 'module']),
                 $devServer['inject']
             )
         ));
@@ -130,9 +128,10 @@ class RnaHelper extends Helper
      * Get css assets.
      *
      * @param string $asset The assets name.
+     * @param array $options Array of options and HTML arguments.
      * @return string HTML to load CSS resources.
      */
-    public function css(string $asset): string
+    public function css(string $asset, array $options = []): string
     {
         $devServer = $this->loadDevServer($asset);
         $assets = $this->getAssets($asset, 'css');
@@ -143,10 +142,8 @@ class RnaHelper extends Helper
 
         return $devServer . join('', array_filter(
             array_map(
-                function (string $path): ?string {
-                    return $this->Html->css($path);
-                },
-                $assets[1]
+                fn (string $path): ?string => $this->Html->css($path, $options),
+                $assets
             )
         ));
     }
@@ -172,10 +169,8 @@ class RnaHelper extends Helper
 
         return $devServer . join('', array_filter(
             array_map(
-                function (string $path) use ($options): ?string {
-                    return $this->Html->script($path, $options);
-                },
-                $assets[1]
+                fn (string $path): ?string => $this->Html->script($path, $options),
+                $assets
             )
         ));
     }
