@@ -74,31 +74,24 @@ class RnaHelper extends Helper
      * Get dev server data.
      *
      * @param string $pluginName The plugin name.
+     * @param array $options Array of options and HTML attributes.
      * @return string Script to inject dev server functionality.
      */
-    public function loadDevServer(string $pluginName): string
+    public function devServer(string $pluginName, array $options = []): string
     {
         [$plugin] = pluginSplit($pluginName);
-        if (!empty($this->devServers[$plugin])) {
-            return '';
-        }
-
         $map = $this->loadEntrypoints($plugin);
         if ($map === null) {
             return '';
         }
 
-        $devServer = Hash::get($map, 'server', []);
-        $this->devServers[$plugin] = $devServer;
-
-        if (empty($devServer['inject'])) {
-            return '';
-        }
+        $scripts = Hash::get($map, 'server.inject', []);
+        $options['type'] = 'module';
 
         return join('', array_filter(
             array_map(
-                fn (string $path): ?string => $this->Html->script($path, ['type' => 'module']),
-                $devServer['inject']
+                fn (string $path): ?string => $this->Html->script($path, $options),
+                $scripts
             )
         ));
     }
@@ -128,19 +121,18 @@ class RnaHelper extends Helper
      * Get css assets.
      *
      * @param string $asset The assets name.
-     * @param array $options Array of options and HTML arguments.
+     * @param array $options Array of options and HTML attributes.
      * @return string HTML to load CSS resources.
      */
     public function css(string $asset, array $options = []): string
     {
-        $devServer = $this->loadDevServer($asset);
         [, $assets] = $this->getAssets($asset, 'css');
 
         if (empty($assets)) {
-            return $devServer;
+            return '';
         }
 
-        return $devServer . join('', array_filter(
+        return join('', array_filter(
             array_map(
                 fn (string $path): ?string => $this->Html->css($path, $options),
                 $assets
@@ -152,22 +144,21 @@ class RnaHelper extends Helper
      * Get js assets.
      *
      * @param string $asset The assets name.
-     * @param array $options Array of options and HTML arguments.
+     * @param array $options Array of options and HTML attributes.
      * @return string HTML to load JS resources.
      */
     public function script(string $asset, array $options = []): string
     {
-        $devServer = $this->loadDevServer($asset);
         [$format, $assets] = $this->getAssets($asset, 'js');
         if (empty($assets)) {
-            return $devServer;
+            return '';
         }
 
         if ($format === 'esm') {
             $options['type'] = 'module';
         }
 
-        return $devServer . join('', array_filter(
+        return join('', array_filter(
             array_map(
                 fn (string $path): ?string => $this->Html->script($path, $options),
                 $assets
