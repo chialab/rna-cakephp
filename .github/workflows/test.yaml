@@ -70,7 +70,7 @@ jobs:
         with:
           php-version: '${{ matrix.php }}'
           tools: 'composer'
-          extensions: 'mbstring, intl, pdo_${{ fromJson(matrix.db).pdo }}'
+          extensions: 'mbstring, intl'
           coverage: 'pcov'
           ini-values: 'pcov.directory=., pcov.exclude="~vendor~"'
 
@@ -105,7 +105,7 @@ jobs:
       - name: 'Archive code coverage results'
         uses: 'actions/upload-artifact@v2'
         with:
-          name: 'PHP ${{ matrix.php }} with ${{ fromJson(matrix.db).vendor }}'
+          name: 'PHP ${{ matrix.php }}'
           path: 'clover.xml'
 
   unit-lowest:
