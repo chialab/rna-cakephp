@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": ">=7.4",
+        "ext-json": "*",
         "cakephp/cakephp": "~4.2.0"
     },
     "require-dev": {
