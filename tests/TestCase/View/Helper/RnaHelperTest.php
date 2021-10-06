@@ -1,8 +1,8 @@
 <?php
+declare(strict_types=1);
 
 namespace Chialab\Rna\Test\TestCase\View\Helper;
 
-use Chialab\Rna\View\Helper\RnaHelper;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,7 +14,6 @@ class RnaHelperTest extends TestCase
      * Test {@see RnaHelper::getAssets()} method.
      *
      * @return void
-     *
      * @covers ::getAssets()
      */
     public function testGetAssets()
@@ -26,7 +25,6 @@ class RnaHelperTest extends TestCase
      * Test {@see RnaHelper::script()} method.
      *
      * @return void
-     *
      * @covers ::script()
      */
     public function testScript()
@@ -38,7 +36,6 @@ class RnaHelperTest extends TestCase
      * Test {@see RnaHelper::css()} method.
      *
      * @return void
-     *
      * @covers ::css()
      */
     public function testCss()
@@ -50,7 +47,6 @@ class RnaHelperTest extends TestCase
      * Test {@see RnaHelper::devServer()} method.
      *
      * @return void
-     *
      * @covers ::devServer()
      */
     public function testDevServer()
