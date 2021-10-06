@@ -1,8 +1,16 @@
 {
-    "name": "chialab/rna",
-    "description": "Chialab/Rna plugin for CakePHP",
+    "name": "chialab/rna-cakephp",
+    "description": "A CakePHP plugin to seamlessly integrate with @chialab/rna build artifacts.",
     "type": "cakephp-plugin",
     "license": "MIT",
+    "homepage": "https://github.com/chialab/rna-cakephp",
+    "authors": [
+        {
+            "name": "Chialab",
+            "homepage": "https://www.chialab.io/",
+            "email": "dev@chialab.it"
+        }
+    ],
     "require": {
         "php": ">=7.4",
         "cakephp/cakephp": "~4.2.0"
