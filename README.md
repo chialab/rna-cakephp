@@ -63,3 +63,61 @@ Then use it in your templates:
     {{ Rna.css('YourPlugin.main')|raw }}
     {{ Rna.script('YourPlugin.main', { type: 'module' })|raw }}
     ```
+### Migrate from Symfony Encore
+
+Follow this instructions to migrate from a Webpack Encore based configuration:
+
+* Create a `rna.config.js` file in the root of yuor project.
+* Define entrypoints
+```js
+/**
+ * @param {import('@chialab/rna-config-loader').Config} config
+ * @param {import('@chialab/rna-config-loader').Mode} mode
+ */
+export default function(config, mode) {
+    return {
+        ...config,
+        entrypoints: [
+            // Encore.addEntry('section-filters', `./resources/js/section-filters.js`)
+            {
+                input: [
+                    './resources/js/section-filters.js',
+                ],
+                output: '/webroot/build',
+            },
+            // Encore.addEntry('app', './resources/js/app.js').addStyleEntry('app-style'', './resources/css/app.css')
+            // Encore.script('app') -> Rna.script('app')
+            // Encore.css('app-style') -> Rna.css('app')
+            {
+                input: [
+                    './resources/js/app.js',
+                    './resources/js/app.css',
+                ],
+                output: '/webroot/build',
+            },
+        ],
+    };
+}
+```
+* Extend the RNA configuration
+```js
+export default function(config, mode) {
+    return {
+        ...config,
+        entrypoints: [...],
+        // Encore.cleanupOutputBeforeBuild()
+        clean: true,
+        // Encore.enableSourceMaps(!Encore.isProduction())
+        minify: mode === 'build',
+        sourcemap: mode !== 'build',
+        // Encore.enableVersioning(Encore.isProduction())
+        entryNames: mode === 'build' ? '[name]-[hash]' : '[name]',
+        chunkNames: mode === 'build' ? '[name]-[hash]' : '[name]',
+        assetNames: mode === 'build' ? 'assets/[name]-[hash]' : '[name]',
+        // Encore.setPublicPath('/webroot/build')
+        manifestPath: 'webroot/build/manifest.json',
+        entrypointsPath: 'webroot/build/entrypoints.json',
+    };
+}
+```
+* Remove `@symfony/webpack-encore`, `webpack` and webpack loaders `
