@@ -79,8 +79,7 @@ class RnaHelper extends Helper
      */
     public function devServer(string $pluginName = '', array $options = []): string
     {
-        [$plugin] = pluginSplit($pluginName);
-        $map = $this->loadEntrypoints($plugin);
+        $map = $this->loadEntrypoints($pluginName);
         if ($map === null) {
             return '';
         }
