@@ -6,6 +6,7 @@ namespace Chialab\Rna\View\Helper;
 use Cake\Core\Plugin;
 use Cake\Utility\Hash;
 use Cake\View\Helper;
+use Chialab\Rna\RnaPluginInterface;
 
 /**
  * Rna helper
@@ -42,6 +43,26 @@ class RnaHelper extends Helper
     protected array $devServers = [];
 
     /**
+     * Get the path to the `entrypoints.json` file.
+     *
+     * @param string|null $plugin Plugin name.
+     * @return string
+     */
+    protected function getEntrypointPath(?string $plugin = null): string
+    {
+        if ($plugin === null) {
+            return ROOT . DS . rtrim($this->getConfig('buildPath'), DS) . DS . $this->getConfig('entrypointFile');
+        }
+
+        $pluginInstance = Plugin::getCollection()->get($plugin);
+        if ($pluginInstance instanceof RnaPluginInterface) {
+            return $pluginInstance->getEntrypointsPath();
+        }
+
+        return Plugin::path($plugin) . rtrim($this->getConfig('buildPath'), DS) . DS . $this->getConfig('entrypointFile');
+    }
+
+    /**
      * Load entrypoints for a frontend plugin.
      *
      * @param string|null $plugin The frontend plugin name.
@@ -49,25 +70,17 @@ class RnaHelper extends Helper
      */
     protected function loadEntrypoints(?string $plugin = null): ?array
     {
-        if ($plugin === null) {
-            $plugin = '_';
+        $cacheKey = $plugin ?? '_';
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
-        if (isset($this->cache[$plugin])) {
-            return $this->cache[$plugin];
-        }
-
-        $path = ROOT . DS;
-        if ($plugin !== '_') {
-            $path = Plugin::path($plugin);
-        }
-
-        $path .= rtrim($this->getConfig('buildPath'), DS) . DS . $this->getConfig('entrypointFile');
+        $path = $this->getEntrypointPath($plugin);
         if (!file_exists($path) || !is_readable($path)) {
             return null;
         }
 
-        return $this->cache[$plugin] = json_decode(file_get_contents($path), true);
+        return $this->cache[$cacheKey] = json_decode(file_get_contents($path), true);
     }
 
     /**
