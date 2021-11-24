@@ -90,7 +90,7 @@ class RnaHelper extends Helper
      * @param array $options Array of options and HTML attributes.
      * @return string Script to inject dev server functionality.
      */
-    public function devServer(string $pluginName = '_', array $options = []): string
+    public function devServer(?string $pluginName = null, ?array $options = []): string
     {
         $map = $this->loadEntrypoints($pluginName);
         if ($map === null) {
