@@ -43,6 +43,13 @@ class RnaHelper extends Helper
     protected array $devServers = [];
 
     /**
+     * Original view request.
+     *
+     * @var \Cake\Http\ServerRequest|null
+     */
+    protected $originalRequest = null;
+
+    /**
      * Get the path to the `entrypoints.json` file.
      *
      * @param string|null $plugin Plugin name.
@@ -81,6 +88,34 @@ class RnaHelper extends Helper
         }
 
         return $this->cache[$cacheKey] = json_decode(file_get_contents($path), true);
+    }
+
+    /**
+     * Patch current request with an empty webroot attribute.
+     * RNA entrypoints already includes the full webroot path.
+     * We are removing the `webroot` attribute in order to prevent additional prefix
+     * when using Html::script and Html::css methods.
+     *
+     * @return void
+     */
+    protected function patchViewRequest(): void
+    {
+        $view = $this->getView();
+        $this->originalRequest = $view->getRequest();
+        $view->setRequest($this->originalRequest->withAttribute('webroot', '/'));
+    }
+
+    /**
+     * Restore the original request in view.
+     *
+     * @return void
+     */
+    protected function restoreViewRequest(): void
+    {
+        if (!empty($this->originalRequest)) {
+            $this->getView()->setRequest($this->originalRequest);
+            $this->originalRequest = null;
+        }
     }
 
     /**
@@ -144,12 +179,16 @@ class RnaHelper extends Helper
             return '';
         }
 
-        return join('', array_filter(
+        $this->patchViewRequest();
+        $out = join('', array_filter(
             array_map(
-                fn (string $path): ?string => $this->Html->css($path, $options),
+                fn (string $path): ?string => $this->Html->css($path, ['fullBase' => true] + $options),
                 $assets
             )
         ));
+        $this->restoreViewRequest();
+
+        return $out;
     }
 
     /**
@@ -170,11 +209,15 @@ class RnaHelper extends Helper
             $options['type'] = 'module';
         }
 
-        return join('', array_filter(
+        $this->patchViewRequest();
+        $out = join('', array_filter(
             array_map(
-                fn (string $path): ?string => $this->Html->script($path, $options),
+                fn (string $path): ?string => $this->Html->script($path, ['fullBase' => true] + $options),
                 $assets
             )
         ));
+        $this->restoreViewRequest();
+
+        return $out;
     }
 }
