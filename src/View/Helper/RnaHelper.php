@@ -97,15 +97,12 @@ class RnaHelper extends Helper
         $request = $view->getRequest();
         $patched = $request->withAttribute('webroot', '/');
         $view->setRequest($patched);
-        $res = null;
 
         try {
-            $res = $callback();
+            return $callback();
         } finally {
             $view->setRequest($request);
         }
-
-        return $res;
     }
 
     /**
