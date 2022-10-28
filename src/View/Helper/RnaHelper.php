@@ -84,6 +84,28 @@ class RnaHelper extends Helper
     }
 
     /**
+     * Patch current request with an empty webroot attribute.
+     * RNA entrypoints already includes the full webroot path.
+     * We are removing the `webroot` attribute in order to prevent additional prefix
+     * when using Html::script and Html::css methods.
+     *
+     * @param callable $callback The callback to exec with patched request.
+     */
+    protected function patchViewRequest(callable $callback)
+    {
+        $view = $this->getView();
+        $request = $view->getRequest();
+        $patched = $request->withAttribute('webroot', '/');
+        $view->setRequest($patched);
+
+        try {
+            return $callback();
+        } finally {
+            $view->setRequest($request);
+        }
+    }
+
+    /**
      * Get dev server data.
      *
      * @param string $pluginName The plugin name.
@@ -144,12 +166,12 @@ class RnaHelper extends Helper
             return '';
         }
 
-        return join('', array_filter(
+        return $this->patchViewRequest(fn () => join('', array_filter(
             array_map(
-                fn (string $path): ?string => $this->Html->css($path, $options),
+                fn (string $path): ?string => $this->Html->css($path, ['fullBase' => true] + $options),
                 $assets
             )
-        ));
+        )));
     }
 
     /**
@@ -170,11 +192,11 @@ class RnaHelper extends Helper
             $options['type'] = 'module';
         }
 
-        return join('', array_filter(
+        return $this->patchViewRequest(fn () => join('', array_filter(
             array_map(
-                fn (string $path): ?string => $this->Html->script($path, $options),
+                fn (string $path): ?string => $this->Html->script($path, ['fullBase' => true] + $options),
                 $assets
             )
-        ));
+        )));
     }
 }
