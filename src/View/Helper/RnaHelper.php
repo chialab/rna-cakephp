@@ -43,13 +43,6 @@ class RnaHelper extends Helper
     protected array $devServers = [];
 
     /**
-     * Original view request.
-     *
-     * @var \Cake\Http\ServerRequest|null
-     */
-    protected $originalRequest = null;
-
-    /**
      * Get the path to the `entrypoints.json` file.
      *
      * @param string|null $plugin Plugin name.
@@ -96,26 +89,23 @@ class RnaHelper extends Helper
      * We are removing the `webroot` attribute in order to prevent additional prefix
      * when using Html::script and Html::css methods.
      *
-     * @return void
+     * @param callable $callback The callback to exec with patched request.
      */
-    protected function patchViewRequest(): void
+    protected function patchViewRequest(callable $callback)
     {
         $view = $this->getView();
-        $this->originalRequest = $view->getRequest();
-        $view->setRequest($this->originalRequest->withAttribute('webroot', '/'));
-    }
+        $request = $view->getRequest();
+        $patched = $request->withAttribute('webroot', '/');
+        $view->setRequest($patched);
+        $res = null;
 
-    /**
-     * Restore the original request in view.
-     *
-     * @return void
-     */
-    protected function restoreViewRequest(): void
-    {
-        if (!empty($this->originalRequest)) {
-            $this->getView()->setRequest($this->originalRequest);
-            $this->originalRequest = null;
+        try {
+            $res = $callback();
+        } finally {
+            $view->setRequest($request);
         }
+
+        return $res;
     }
 
     /**
@@ -179,16 +169,12 @@ class RnaHelper extends Helper
             return '';
         }
 
-        $this->patchViewRequest();
-        $out = join('', array_filter(
+        return $this->patchViewRequest(fn () => join('', array_filter(
             array_map(
                 fn (string $path): ?string => $this->Html->css($path, ['fullBase' => true] + $options),
                 $assets
             )
-        ));
-        $this->restoreViewRequest();
-
-        return $out;
+        )));
     }
 
     /**
@@ -209,15 +195,11 @@ class RnaHelper extends Helper
             $options['type'] = 'module';
         }
 
-        $this->patchViewRequest();
-        $out = join('', array_filter(
+        return $this->patchViewRequest(fn () => join('', array_filter(
             array_map(
                 fn (string $path): ?string => $this->Html->script($path, ['fullBase' => true] + $options),
                 $assets
             )
-        ));
-        $this->restoreViewRequest();
-
-        return $out;
+        )));
     }
 }
