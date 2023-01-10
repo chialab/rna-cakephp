@@ -96,12 +96,15 @@ class RnaHelper extends Helper
         $view = $this->getView();
         $request = $view->getRequest();
         $patched = $request->withAttribute('webroot', '/');
+        $plugin = $view->getPlugin();
         $view->setRequest($patched);
+        $view->setPlugin($plugin);
 
         try {
             return $callback();
         } finally {
             $view->setRequest($request);
+            $view->setPlugin($plugin);
         }
     }
 
