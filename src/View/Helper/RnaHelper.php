@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Chialab\Rna\View\Helper;
 
 use Cake\Core\Plugin;
+use Cake\Routing\Router;
 use Cake\Utility\Hash;
 use Cake\View\Helper;
 use Chialab\Rna\RnaPluginInterface;
@@ -91,20 +92,19 @@ class RnaHelper extends Helper
      *
      * @param callable $callback The callback to exec with patched request.
      */
-    protected function patchViewRequest(callable $callback)
+    protected function patchRouterRequest(callable $callback)
     {
-        $view = $this->getView();
-        $request = $view->getRequest();
-        $patched = $request->withAttribute('webroot', '/');
-        $plugin = $view->getPlugin();
-        $view->setRequest($patched);
-        $view->setPlugin($plugin);
+        $request = Router::getRequest();
+        if (!$request) {
+            return $callback();
+        }
+
+        Router::setRequest($request->withAttribute('webroot', '/'));
 
         try {
             return $callback();
         } finally {
-            $view->setRequest($request);
-            $view->setPlugin($plugin);
+            Router::setRequest($request);
         }
     }
 
@@ -169,7 +169,7 @@ class RnaHelper extends Helper
             return '';
         }
 
-        return $this->patchViewRequest(fn () => join('', array_filter(
+        return $this->patchRouterRequest(fn () => join('', array_filter(
             array_map(
                 fn (string $path): ?string => $this->Html->css($path, ['fullBase' => true] + $options),
                 $assets
@@ -195,7 +195,7 @@ class RnaHelper extends Helper
             $options['type'] = 'module';
         }
 
-        return $this->patchViewRequest(fn () => join('', array_filter(
+        return $this->patchRouterRequest(fn () => join('', array_filter(
             array_map(
                 fn (string $path): ?string => $this->Html->script($path, ['fullBase' => true] + $options),
                 $assets
