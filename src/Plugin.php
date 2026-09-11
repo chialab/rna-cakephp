@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Chialab\Rna;
 
-use Cake\Core\BasePlugin;
-
 /**
  * Plugin class.
  *
@@ -16,6 +14,6 @@ use Cake\Core\BasePlugin;
  * $this->addPlugin('Chialab/Rna');
  * ```
  */
-class Plugin extends BasePlugin
+class Plugin extends RnaPlugin
 {
 }
