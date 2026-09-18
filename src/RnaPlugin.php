@@ -16,6 +16,6 @@ use Cake\Core\BasePlugin;
  * $this->addPlugin('Chialab/Rna');
  * ```
  */
-class Plugin extends BasePlugin
+class RnaPlugin extends BasePlugin
 {
 }

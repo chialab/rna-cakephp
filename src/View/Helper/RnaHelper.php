@@ -8,6 +8,7 @@ use Cake\Routing\Router;
 use Cake\Utility\Hash;
 use Cake\View\Helper;
 use Chialab\Rna\RnaPluginInterface;
+use function Cake\Core\pluginSplit;
 
 /**
  * Rna helper
@@ -19,12 +20,12 @@ class RnaHelper extends Helper
     /**
      * @inheritDoc
      */
-    public $helpers = ['Html'];
+    public array $helpers = ['Html'];
 
     /**
      * @inheritDoc
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'buildPath' => 'webroot' . DS . 'build',
         'entrypointFile' => 'entrypoints.json',
     ];
